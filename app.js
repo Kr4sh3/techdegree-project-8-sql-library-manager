@@ -44,18 +44,17 @@ app.use('/favicon.ico', (req, res) => {
 
 //Catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  next(createError(404));
+  const err = new Error("Sorry! We couldn't find that page!");
+  err.status = 404;
+  res.status(err.status || 404)
+  res.render('page-not-found', { error: err });
 });
 
 //Error handler
 app.use(function (err, req, res, next) {
-  //Set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  //Render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  const error = new Error("Sorry! Something went wrong on our end!");
+  error.status = err.status || 500;
+  res.render('error', { error });
 });
 
 module.exports = app;
