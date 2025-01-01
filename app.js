@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var booksRouter = require('./routes/books');
 var sequelize = require('./models').sequelize;
 
 var app = express();
@@ -37,24 +37,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //Routes
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/books', booksRouter);
 app.use('/favicon.ico', (req, res) => {
   res.send("No favicon here!");
 })
 
 //Catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  const err = new Error("Sorry! We couldn't find that page!");
-  err.status = 404;
-  res.status(err.status || 404)
-  res.render('page-not-found', { error: err });
+  const error = new Error("Sorry! We couldn't find the page you were looking for.");
+  error.status = 404;
+  res.status(error.status || 404)
+  res.render('page-not-found', { error, title: "Page Not Found" });
 });
 
 //Error handler
 app.use(function (err, req, res, next) {
-  const error = new Error("Sorry! Something went wrong on our end!");
+  console.log(err.message);
+  const error = new Error("Sorry! There was an unexpected error on the server.");
   error.status = err.status || 500;
-  res.render('error', { error });
+  res.render('error', { error, title: "Server Error" });
 });
 
 module.exports = app;

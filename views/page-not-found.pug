@@ -1,6 +1,8 @@
 extends layout
 
 block content
-  h1= error.message
-  h2 Error #{error.status} 
-  a(href='/') Back to Home
+	h1 Page Not Found
+	p= error.message
+	br
+	p 
+		a.button(class="button" href='/') Home
