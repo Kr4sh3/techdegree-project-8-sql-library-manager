@@ -53,7 +53,6 @@ router.get('/', async (req, res, next) => {
     if (books instanceof Error) {
         return next(books);
     }
-
     //Main book listing page
     res.render("index", { title: "Book Listings", books });
 });
@@ -85,7 +84,7 @@ router.get('/:id', async (req, res, next) => {
 });
 
 //Post updated book to database
-router.post('/:id/update', async (req, res) => {
+router.post('/:id', async (req, res) => {
     const book = req.body;
     const error = await updateBook(req.params.id, book);
     //Error handling

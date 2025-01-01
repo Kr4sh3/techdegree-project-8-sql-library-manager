@@ -2,7 +2,7 @@ extends layout
 
 block content
 	h1 Update Book 
-	form(method='POST' action=`/books/${book.id}/update`)
+	form(method='POST' action=`/books/${book.id}`)
 		if errors
 			h2(class="error") Oooops!
 			ul(class="error")
