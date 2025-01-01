@@ -1,12 +1,31 @@
 var express = require('express');
 var router = express.Router();
 var Book = require('../models').Book;
+const { Op } = require("sequelize");
+const pageLimit = 8;
 
-async function fetchBooks() {
+async function fetchBooks(searchTerm, page) {
     try {
-        const books = await Book.findAll();
-        const booksJSON = books.map(book => book.toJSON());
-        return booksJSON;
+        let books;
+        if (searchTerm) {
+            books = await Book.findAndCountAll({
+                where: {
+                    [Op.or]: ['title', 'author', 'genre', 'year'].map(field => ({
+                        [field]: { [Op.substring]: searchTerm }
+                    }))
+                },
+                limit: pageLimit,
+                offset: page * pageLimit - pageLimit,
+            });
+        }
+        else {
+            books = await Book.findAndCountAll({
+                limit: pageLimit,
+                offset: page * pageLimit - pageLimit,
+            });
+        }
+        const booksJSON = books.rows.map(book => book.toJSON());
+        return [booksJSON, books.count];
     } catch (error) {
         return error;
     }
@@ -48,13 +67,16 @@ async function deleteBook(id) {
 
 /* GET books page. */
 router.get('/', async (req, res, next) => {
-    const books = await fetchBooks();
+    const searchTerm = req.query.search || "";
+    const page = parseInt(req.query.page, 10) || 1;
+    const [books, count] = await fetchBooks(searchTerm, page);
+    const pageCount = Math.ceil(count / pageLimit);
     //Error handling
     if (books instanceof Error) {
         return next(books);
     }
     //Main book listing page
-    res.render("index", { title: "Book Listings", books });
+    res.render("index", { title: "Book Listings", books, page , pageCount, searchTerm});
 });
 
 //Display new book form
